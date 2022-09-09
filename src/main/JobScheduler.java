@@ -1,11 +1,20 @@
 package main;
 
+import java.util.Comparator;
+import java.util.PriorityQueue;
+import java.util.Queue;
+import java.util.concurrent.PriorityBlockingQueue;
+
 /**
  * Responsible for scheduling cron jobs periodically, manages adding new cron
  * jobs, executing ones at their required times, and keeping track of their
  * status.
  */
-public class JobScheduler {
+public final class JobScheduler {
+
+    private final Queue<CronJob> cronJobQueue;
+
+    private final JobExecutor jobExecutorThread;
 
     public JobScheduler() {
         // here I should start 2 main threads, one that accepts new jobs and
@@ -34,15 +43,37 @@ public class JobScheduler {
          * w kol thread men dol mas2ool 3an recording el time of execution of the
          * job, then it could delegate this info to a logger which should handle
          * logging all info (execution time, output, etc..) of any job that ran
-         * in a file w tab3an hay-expect in multiple threads tekon 3ayza tekteb
-         * f nafs elwa2t f lazem da yeb2a handled.
+         * in a file.
          *
          * 3ayez afakar bardo fel case beta3et en 2 jobs 5alaso execution ma3 ba3d
          * w 3ayzeen ye3melo re-insert lel job dy bel frequency beta3et-ha fel
          * queue of jobs to be executed.
+         *
+         * haykoon 3andy path lel logging directory, w haykoon kol job leha el
+         * file beta3ha w esmo feh el id beta3 el job.
          */
 
+        this.cronJobQueue = new PriorityBlockingQueue<CronJob>
+            (11, new Comparator<CronJob>() {
+                @Override
+                public int compare(CronJob firstJob, CronJob secondJob) {
+                    // here i should return the lastExecutedTime + frequency
+                    // which is the time to execute this job
+                    // this way, the queue will be sorted on the next time
+                    // to execute the job
+                    long timeToExecuteFirstJob
+                        = firstJob.getLastExecutedTimestamp()
+                        + firstJob.getFrequencyInMillis();
 
+                    long timeToExecuteSecondJob
+                        = secondJob.getLastExecutedTimestamp()
+                        + secondJob.getFrequencyInMillis();
+                    return Long.compare
+                        (timeToExecuteFirstJob, timeToExecuteSecondJob);
+                }
+        });
+
+        this.jobExecutorThread = new JobExecutor();
     }
 
     /**
@@ -50,7 +81,11 @@ public class JobScheduler {
      * be executed.
      */
     public void accept(CronJob cronJob) {
-        // TODO
+        cronJobQueue.add(cronJob);
+
+        // need to notify the thread to wakeup and then sleep according to the
+        // new lowest waiting time needed for the nearest job to be executed
+        this.jobExecutorThread.notify();
     }
 
     private class JobExecutor extends Thread {
