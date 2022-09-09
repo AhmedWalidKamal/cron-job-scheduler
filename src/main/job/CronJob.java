@@ -1,4 +1,4 @@
-package main;
+package main.job;
 
 import java.time.Instant;
 
@@ -18,10 +18,19 @@ public abstract class CronJob implements Runnable {
      */
     private long lastExecutedTimestamp;
 
+    public CronJob(long frequencyInMillis) {
+        this(frequencyInMillis, false/*isSingleRun*/);
+    }
+
     public CronJob(long frequencyInMillis, boolean isSingleRun) {
+        // TODO: need to use a unique ID generator here
+        this(frequencyInMillis, isSingleRun, 1);
+    }
+
+    public CronJob(long frequencyInMillis, boolean isSingleRun, long id) {
         this.frequencyInMillis = frequencyInMillis;
         this.isSingleRun = isSingleRun;
-        this.id = 1; // TODO: need to use a unique ID generator here
+        this.id = id;
 
         this.lastExecutedTimestamp = Instant.now().toEpochMilli();
     }

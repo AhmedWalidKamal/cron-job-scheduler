@@ -1,9 +1,8 @@
-package main;
+package main.job;
 
-import java.util.Comparator;
-import java.util.PriorityQueue;
-import java.util.Queue;
-import java.util.concurrent.PriorityBlockingQueue;
+import com.google.common.eventbus.EventBus;
+
+import main.event.JobAddedEvent;
 
 /**
  * Responsible for scheduling cron jobs periodically, manages adding new cron
@@ -12,9 +11,8 @@ import java.util.concurrent.PriorityBlockingQueue;
  */
 public final class JobScheduler {
 
-    private final Queue<CronJob> cronJobQueue;
-
     private final JobExecutor jobExecutorThread;
+    private final EventBus eventBus;
 
     public JobScheduler() {
         // here I should start 2 main threads, one that accepts new jobs and
@@ -53,27 +51,8 @@ public final class JobScheduler {
          * file beta3ha w esmo feh el id beta3 el job.
          */
 
-        this.cronJobQueue = new PriorityBlockingQueue<CronJob>
-            (11, new Comparator<CronJob>() {
-                @Override
-                public int compare(CronJob firstJob, CronJob secondJob) {
-                    // here i should return the lastExecutedTime + frequency
-                    // which is the time to execute this job
-                    // this way, the queue will be sorted on the next time
-                    // to execute the job
-                    long timeToExecuteFirstJob
-                        = firstJob.getLastExecutedTimestamp()
-                        + firstJob.getFrequencyInMillis();
-
-                    long timeToExecuteSecondJob
-                        = secondJob.getLastExecutedTimestamp()
-                        + secondJob.getFrequencyInMillis();
-                    return Long.compare
-                        (timeToExecuteFirstJob, timeToExecuteSecondJob);
-                }
-        });
-
-        this.jobExecutorThread = new JobExecutor();
+        this.eventBus = new EventBus();
+        this.jobExecutorThread = new JobExecutor(this.eventBus);
     }
 
     /**
@@ -81,17 +60,9 @@ public final class JobScheduler {
      * be executed.
      */
     public void accept(CronJob cronJob) {
-        cronJobQueue.add(cronJob);
+//        cronJobQueue.add(cronJob);
 
-        // need to notify the thread to wakeup and then sleep according to the
-        // new lowest waiting time needed for the nearest job to be executed
-        this.jobExecutorThread.notify();
-    }
-
-    private class JobExecutor extends Thread {
-
-        public void run() {
-            // TODO
-        }
+        System.out.println("Accepting new job with ID = " + cronJob.getId());
+        eventBus.post(new JobAddedEvent(cronJob));
     }
 }

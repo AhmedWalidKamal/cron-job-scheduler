@@ -1,4 +1,4 @@
-package main;
+package main.log;
 
 /**
  * Responsible for cron jobs' info in log files. Logs information like
