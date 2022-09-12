@@ -3,6 +3,9 @@ package main.job;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.Queue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.PriorityBlockingQueue;
 
 import com.google.common.eventbus.EventBus;
@@ -17,8 +20,12 @@ public class JobExecutor extends Thread {
 
     private final EventBus eventBus;
 
+    private final ExecutorService executorService;
+
     public JobExecutor(EventBus eventBus) {
         this.eventBus = eventBus;
+        this.executorService = Executors.newFixedThreadPool(10);
+
         this.eventBus.register(new CronJobAddedEventListener());
 
         this.cronJobQueue = new PriorityBlockingQueue<CronJob>
@@ -50,25 +57,34 @@ public class JobExecutor extends Thread {
         //    queue again to be scheduled for its next execution
 
         while (true) {
-            if (cronJobQueue.isEmpty()) {
-                try {
-                    wait();
+            synchronized(cronJobQueue) {
+                while (cronJobQueue.isEmpty()) {
+                    try {
+                        System.out.println("waiting since the queue is empty...");
+                        cronJobQueue.wait();
+                    }
+                    catch (InterruptedException e) {
+                        System.out.println("Interrupted exception while waiting on queue: ");
+                        e.printStackTrace();
+                    }
+                    System.out.println("Interrupted by an add event!");
                 }
-                catch (InterruptedException e) {
+
+                CronJob nextJobToBeExecuted = cronJobQueue.peek();
+                long timeToExecuteNextJob
+                    = nextJobToBeExecuted.getLastExecutedTimestamp()
+                    + nextJobToBeExecuted.getFrequencyInMillis();
+                try {
+                    cronJobQueue.wait(timeToExecuteNextJob - Instant.now().toEpochMilli());
+                } catch (InterruptedException e) {
+                    System.out.println("Interrupted exception while waiting on job time: ");
                     e.printStackTrace();
                 }
+                System.out.println("Executing the job nowwww!");
+                Future<?> future = executorService.submit(cronJobQueue.poll());
+            }
 
 
-            }
-            CronJob nextJobToBeExecuted = cronJobQueue.peek();
-            long timeToExecuteNextJob
-                = nextJobToBeExecuted.getLastExecutedTimestamp()
-                + nextJobToBeExecuted.getFrequencyInMillis();
-            try {
-                wait(timeToExecuteNextJob - Instant.now().toEpochMilli());
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
 
             // need to check here if this was waken up because the timeout
             // has elapsed, or because of a notify from an event and act
@@ -88,8 +104,12 @@ public class JobExecutor extends Thread {
             CronJob newCronJob = jobAddedEvent.getCronJob();
             System.out.println("Job with ID = " + newCronJob.getId()
                                + " has been received.");
-            cronJobQueue.add(newCronJob);
-            notify(); // wake up the thread to sleep on the new nearest time
+
+            System.out.println("Notifying the current thread");
+            synchronized(cronJobQueue) {
+                cronJobQueue.add(newCronJob);
+                cronJobQueue.notifyAll();
+            }
         }
     }
 

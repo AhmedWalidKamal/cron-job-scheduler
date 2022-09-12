@@ -5,8 +5,22 @@ import main.job.JobScheduler;
 
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         JobScheduler scheduler = new JobScheduler();
+        Thread.sleep(10000);
+        scheduler.accept(new Main.TestJob());
+        scheduler.accept(new Main.TestJob());
+        scheduler.accept(new Main.TestJob());
+        scheduler.accept(new Main.TestJob());
+        Thread.sleep(1000);
+        scheduler.accept(new Main.TestJob());
+        scheduler.accept(new Main.TestJob());
+        scheduler.accept(new Main.TestJob());
+        scheduler.accept(new Main.TestJob());
+        scheduler.accept(new Main.TestJob());
+        scheduler.accept(new Main.TestJob());
+        scheduler.accept(new Main.TestJob());
+        scheduler.accept(new Main.TestJob());
         scheduler.accept(new Main.TestJob());
     }
 

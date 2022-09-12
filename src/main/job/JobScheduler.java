@@ -53,6 +53,7 @@ public final class JobScheduler {
 
         this.eventBus = new EventBus();
         this.jobExecutorThread = new JobExecutor(this.eventBus);
+        this.jobExecutorThread.start();
     }
 
     /**
