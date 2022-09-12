@@ -1,5 +1,9 @@
 package main.log;
 
+import org.apache.logging.log4j.core.Logger;
+
+import main.job.CronJob;
+
 /**
  * Responsible for cron jobs' info in log files. Logs information like
  * start of execution time, end of execution time, any output of the job, time
@@ -9,6 +13,11 @@ package main.log;
  * directory path defined as a constant here) and each file would be identified
  * with the Job's ID (maybe alongside a prefix/suffix).
  */
-public final class Logger {
+public final class CronJobLogger {
 
+    private final CronJob cronJob;
+
+    public CronJobLogger(CronJob cronJob) {
+        this.cronJob = cronJob;
+    }
 }
