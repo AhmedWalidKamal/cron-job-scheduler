@@ -15,7 +15,7 @@ import main.event.JobExecutedEvent;
  * Manages the job queue by handling events to add jobs to the queue, execute
  * jobs that are schedule to execute, and wait until a job is ready to exceute.
  */
-public class JobQueueManager extends Thread {
+public final class JobQueueManager extends Thread {
 
     private final EventBus eventBus;
 
@@ -52,10 +52,12 @@ public class JobQueueManager extends Thread {
             synchronized(cronJobQueue) {
                 while (cronJobQueue.isEmpty()) {
                     try {
+                        System.out.println("Waiting till a job is added");
                         cronJobQueue.wait();
                     }
                     catch (InterruptedException e) {
-                        System.out.println("Interrupted exception while waiting on queue: ");
+                        System.out.println("Interrupted exception while "
+                                           + "waiting on queue: ");
                         e.printStackTrace();
                     }
                 }
@@ -64,12 +66,21 @@ public class JobQueueManager extends Thread {
                 long timeToExecuteNextJob
                     = nextJobToBeExecuted.getLastExecutedTimestamp()
                     + nextJobToBeExecuted.getFrequencyInMillis();
-                try {
-                    cronJobQueue.wait(timeToExecuteNextJob - Instant.now().toEpochMilli());
-                } catch (InterruptedException e) {
-                    System.out.println("Interrupted exception while waiting on job time: ");
-                    e.printStackTrace();
+                while (timeToExecuteNextJob > Instant.now().toEpochMilli()) {
+                    try {
+                        cronJobQueue.wait
+                            (timeToExecuteNextJob - Instant.now().toEpochMilli());
+                    } catch (InterruptedException e) {
+                        System.out.println
+                            ("Interrupted exception while waiting on job time: ");
+                        e.printStackTrace();
+                    }
+
+                    timeToExecuteNextJob
+                        = cronJobQueue.peek().getLastExecutedTimestamp()
+                        + cronJobQueue.peek().getFrequencyInMillis();
                 }
+
                 jobExecutor.execute(cronJobQueue.poll());
             }
         }
@@ -96,7 +107,6 @@ public class JobQueueManager extends Thread {
             System.out.println("Job with ID = " + newCronJob.getId()
                                + " has been received to be added.");
 
-            System.out.println("Notifying the current thread");
             synchronized(cronJobQueue) {
                 cronJobQueue.add(newCronJob);
                 cronJobQueue.notifyAll();
