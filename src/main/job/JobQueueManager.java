@@ -5,7 +5,6 @@ import java.util.Comparator;
 import java.util.Queue;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
@@ -21,7 +20,7 @@ public final class JobQueueManager extends Thread {
 
     private final EventBus eventBus;
 
-    private final Queue<CronJob> cronJobQueue;
+    private final Queue<CronJobWrapper> cronJobQueue;
 
     private final JobExecutor jobExecutor;
 
@@ -29,10 +28,12 @@ public final class JobQueueManager extends Thread {
         this.eventBus = eventBus;
         registerEvents();
 
-        this.cronJobQueue = new PriorityBlockingQueue<CronJob>
-            (11, new Comparator<CronJob>() {
+        this.cronJobQueue = new PriorityBlockingQueue<CronJobWrapper>
+            (11, new Comparator<CronJobWrapper>() {
                 @Override
-                public int compare(CronJob firstJob, CronJob secondJob) {
+                public int compare
+                    (CronJobWrapper firstJob, CronJobWrapper secondJob) {
+
                     long timeToExecuteFirstJob
                         = firstJob.getLastExecutedTimestamp()
                         + firstJob.getFrequencyInMillis();
@@ -66,7 +67,7 @@ public final class JobQueueManager extends Thread {
                     }
                 }
 
-                CronJob nextJobToBeExecuted = cronJobQueue.peek();
+                CronJobWrapper nextJobToBeExecuted = cronJobQueue.peek();
                 long timeToExecuteNextJob
                     = nextJobToBeExecuted.getLastExecutedTimestamp()
                     + nextJobToBeExecuted.getFrequencyInMillis();
@@ -108,7 +109,7 @@ public final class JobQueueManager extends Thread {
 
         @Subscribe
         public void cronJobAdded(JobAddedEvent jobAddedEvent) {
-            CronJob newCronJob = jobAddedEvent.getCronJob();
+            CronJobWrapper newCronJob = jobAddedEvent.getCronJobWrapper();
 
             JobScheduler.getLogger().log
                 (Level.INFO, "Job with ID = " + newCronJob.getId()
@@ -125,7 +126,7 @@ public final class JobQueueManager extends Thread {
 
         @Subscribe
         public void cronJobExecuted(JobExecutedEvent jobExecutedEvent) {
-            CronJob executedJob = jobExecutedEvent.getCronJob();
+            CronJobWrapper executedJob = jobExecutedEvent.getCronJobWrapper();
             JobScheduler.getLogger().log
                 (Level.INFO, "Job with ID = " + executedJob.getId()
                  + " has finished execution. It took approximately: "

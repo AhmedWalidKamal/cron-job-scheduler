@@ -1,6 +1,6 @@
 package main;
 
-import main.job.CronJob;
+import main.job.CronJobWrapper;
 import main.job.JobScheduler;
 
 public class Main {
@@ -14,55 +14,55 @@ public class Main {
      */
 
     public static void main(String[] args) throws Exception {
-        JobScheduler scheduler = new JobScheduler();
-        scheduler.accept(new Main.SampleJobA());
-        Thread.sleep(5000);
+//        JobScheduler scheduler = new JobScheduler();
+//        scheduler.accept(new Main.SampleJobA());
+//        Thread.sleep(5000);
 
     }
 
-    private static void addJobWithDelay(JobScheduler scheduler,
-                                        CronJob job, long delay) {
-        scheduler.accept(job);
-        try {
-            Thread.sleep(delay);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static class SampleJobA extends CronJob {
-
-        public SampleJobA() {
-            super(1000);
-        }
-
-        @Override
-        public void run() {
-            System.out.println("Executing Sample Job A.");
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            System.out.println("Finished execution Sample Job A.");
-        }
-    }
-
-    private static class SampleJobB extends CronJob {
-
-        public SampleJobB() {
-            super(100000);
-        }
-
-        @Override
-        public void run() {
-            System.out.println("Executing Sample Job B.");
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            System.out.println("Finished execution Sample Job B.");
-        }
-    }
+//    private static void addJobWithDelay(JobScheduler scheduler,
+//                                        CronJobWrapper job, long delay) {
+//        scheduler.accept(job);
+//        try {
+//            Thread.sleep(delay);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//    }
+//
+//    private static class SampleJobA extends CronJobWrapper {
+//
+//        public SampleJobA() {
+//            super(1000);
+//        }
+//
+//        @Override
+//        public void run() {
+//            System.out.println("Executing Sample Job A.");
+//            try {
+//                Thread.sleep(1000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//            System.out.println("Finished execution Sample Job A.");
+//        }
+//    }
+//
+//    private static class SampleJobB extends CronJobWrapper {
+//
+//        public SampleJobB() {
+//            super(100000);
+//        }
+//
+//        @Override
+//        public void run() {
+//            System.out.println("Executing Sample Job B.");
+//            try {
+//                Thread.sleep(1000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//            System.out.println("Finished execution Sample Job B.");
+//        }
+//    }
 }

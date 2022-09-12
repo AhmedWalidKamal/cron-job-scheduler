@@ -1,62 +1,22 @@
 package main.job;
 
-import java.time.Instant;
-import java.util.UUID;
-
 /**
- * Represents a job that gets scheduled to be executed perodically.
+ * A Cron Job interface used by the client to specify:
+ *   1) The job implementation to schedule for execution.
+ *   2) The expected interval for a single run for this job.
+ *   3) The scheduling frequency.
  */
-public abstract class CronJob implements Runnable {
+public interface CronJob extends Runnable {
 
-    private final Long expectedRunningIntervalIfAny;
-    private final long frequencyInMillis;
-    private final String id;
-
-    /*
-     * Indicates the timestamp of the last time this job was executed, if this
-     * job hasn't been executed yet, then it has the value of the time of its
-     * creation.
+    /**
+     * @return {@link Long} the frequency by which to run this job
+     * in milliseconds.
      */
-    private long lastExecutedTimestamp;
+    Long getFrequencyInMillis();
 
-    public CronJob(long frequencyInMillis) {
-        this(null/*expectedRunningIntervalIfAny*/, frequencyInMillis);
-    }
-
-    public CronJob(Long expectedRunningIntervalIfAny, long frequencyInMillis) {
-        this(expectedRunningIntervalIfAny, frequencyInMillis,
-             UUID.randomUUID().toString());
-    }
-
-    private CronJob(Long expectedRunningIntervalIfAny, long frequencyInMillis,
-                    String id) {
-
-        this.expectedRunningIntervalIfAny = expectedRunningIntervalIfAny;
-        this.frequencyInMillis = frequencyInMillis;
-        this.id = id;
-
-        this.lastExecutedTimestamp = Instant.now().toEpochMilli();
-    }
-
-    public abstract void run();
-
-    public Long getExpectedRunningIntervalIfAny() {
-        return expectedRunningIntervalIfAny;
-    }
-
-    public long getFrequencyInMillis() {
-        return frequencyInMillis;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public long getLastExecutedTimestamp() {
-        return lastExecutedTimestamp;
-    }
-
-    public void updateLastExecutedTimestamp() {
-        lastExecutedTimestamp = Instant.now().toEpochMilli();
-    }
+    /**
+     * @return {@link Long} the expected running interval of this job in
+     * milliseconds, or null if no expected interval is specified.
+     */
+    Long getExpectedRunningIntervalIfAny();
 }

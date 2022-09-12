@@ -1,19 +1,19 @@
 package main.event;
 
-import main.job.CronJob;
+import main.job.CronJobWrapper;
 
 /**
- * An event that indicates that a cron job has just been added to the queue to
- * be scheduled for execution.
+ * An event that indicates that {@link CronJob} has just been added to the queue
+ * to be scheduled for execution.
  */
 public final class JobAddedEvent {
-    private final CronJob cronJob;
+    private final CronJobWrapper cronJobWrapper;
 
-    public JobAddedEvent(CronJob cronJob) {
-        this.cronJob = cronJob;
+    public JobAddedEvent(CronJobWrapper cronJobWrapper) {
+        this.cronJobWrapper = cronJobWrapper;
     }
 
-    public CronJob getCronJob() {
-        return cronJob;
+    public CronJobWrapper getCronJobWrapper() {
+        return cronJobWrapper;
     }
 }

@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 import main.job.CronJob;
+import main.job.CronJobWrapper;
 import main.job.JobScheduler;
 
 public final class PeriodicCronJobTest {
@@ -14,7 +15,23 @@ public final class PeriodicCronJobTest {
     @Test
     void testSinglePeriodicJob() {
         JobScheduler scheduler = new JobScheduler();
-        scheduler.accept(new IncrementCounterJob());
+        scheduler.accept(new CronJob() {
+
+            @Override
+            public void run() {
+                counter++;
+            }
+
+            @Override
+            public Long getFrequencyInMillis() {
+                return 1000L;
+            }
+
+            @Override
+            public Long getExpectedRunningIntervalIfAny() {
+                return null;
+            }
+        });
 
         // sleep for 10 seconds
         try {
@@ -25,35 +42,4 @@ public final class PeriodicCronJobTest {
         System.out.println(counter);
         assertTrue(counter == 10);
     }
-
-//    @Test
-//    void testMultiplePeriodicJobs() {
-//        JobScheduler scheduler = new JobScheduler();
-//        scheduler.accept(new IncrementCounterJob());
-//
-//        // sleep for 10 seconds
-//        try {
-//            Thread.sleep(10000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-//        System.out.println(counter);
-//        assertTrue(counter == 10);
-//    }
-
-    /**
-     * A periodic job that runs each second and just increments a counter.
-     */
-    private final class IncrementCounterJob extends CronJob {
-
-        public IncrementCounterJob() {
-            super(1000);
-        }
-
-        @Override
-        public void run() {
-            counter++;
-        }
-    }
-
 }

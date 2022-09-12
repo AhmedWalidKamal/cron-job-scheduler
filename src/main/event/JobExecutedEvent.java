@@ -1,18 +1,18 @@
 package main.event;
 
-import main.job.CronJob;
+import main.job.CronJobWrapper;
 
 /**
- * An event that indicates that a cron job has finished execution.
+ * An event that indicates that a {@link CronJob} has finished execution.
  */
 public final class JobExecutedEvent {
-    private final CronJob cronJob;
+    private final CronJobWrapper cronJobWrapper;
 
-    public JobExecutedEvent(CronJob cronJob) {
-        this.cronJob = cronJob;
+    public JobExecutedEvent(CronJobWrapper cronJobWrapper) {
+        this.cronJobWrapper = cronJobWrapper;
     }
 
-    public CronJob getCronJob() {
-        return cronJob;
+    public CronJobWrapper getCronJobWrapper() {
+        return cronJobWrapper;
     }
 }

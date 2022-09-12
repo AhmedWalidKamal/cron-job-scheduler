@@ -28,23 +28,23 @@ public final class JobExecutor {
     }
 
     /**
-     * Takes a {@link CronJob} to execute.
+     * Takes a {@link CronJobWrapper} to execute.
      */
-    public void execute(CronJob jobToExecute) {
+    public void execute(CronJobWrapper jobToExecute) {
         new JobExecutionThread(jobToExecute).start();
     }
 
     private class JobExecutionThread extends Thread {
 
-        private final CronJob jobToExecute;
+        private final CronJobWrapper jobToExecute;
 
-        public JobExecutionThread(CronJob jobToExecute) {
+        public JobExecutionThread(CronJobWrapper jobToExecute) {
             this.jobToExecute = jobToExecute;
         }
 
         @Override
         public void run() {
-            Future<?> future = executorService.submit(jobToExecute);
+            Future<?> future = executorService.submit(jobToExecute.getCronJob());
             while (!future.isDone()) {
                 try {
                     long timeout

@@ -15,9 +15,8 @@ import com.google.common.eventbus.EventBus;
 import main.event.JobAddedEvent;
 
 /**
- * Responsible for scheduling cron jobs periodically, manages adding new cron
- * jobs, executing ones at their required times, and keeping track of their
- * status.
+ * Responsible for scheduling cron jobs periodically, accepts new jobs that
+ * will be added to the job queue to be scheduled for execution.
  */
 public final class JobScheduler {
 
@@ -40,8 +39,10 @@ public final class JobScheduler {
      * be executed.
      */
     public void accept(CronJob cronJob) {
-        logger.log(Level.INFO, "Accepting new job with ID = " + cronJob.getId());
-        eventBus.post(new JobAddedEvent(cronJob));
+        CronJobWrapper cronJobWrapper = new CronJobWrapper(cronJob);
+        logger.log(Level.INFO, "Accepting new job with ID = "
+                               + cronJobWrapper.getId());
+        eventBus.post(new JobAddedEvent(cronJobWrapper));
     }
 
     public static Logger getLogger() {
