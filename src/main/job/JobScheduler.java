@@ -1,5 +1,15 @@
 package main.job;
 
+import java.io.IOException;
+import java.util.Date;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.FileHandler;
+import java.util.logging.Formatter;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
+
 import com.google.common.eventbus.EventBus;
 
 import main.event.JobAddedEvent;
@@ -11,49 +21,18 @@ import main.event.JobAddedEvent;
  */
 public final class JobScheduler {
 
-    private final JobQueueManager jobExecutorThread;
     private final EventBus eventBus;
 
+    private static final Logger logger
+        = Logger.getLogger(JobScheduler.class.getName());
+
     public JobScheduler() {
-        // here I should start 2 main threads, one that accepts new jobs and
-        // adds them to the queue of jobs to be executed, and another that is
-        // responsible for executing the jobs in the queue
-
-        // I think the main thread could be used as the one that accepts new jobs
-
-        // shouldn't forget to handle the case of single run jobs
-
-        /*
-         * el ana mota5ayaelo hena hoa eny h-start new thread (momken yekon inner
-         * class bey-extend Thread masalan) mas2ool 3an eno y-execute el jobs,
-         * da hayb2a bey wait bel time beta3 el job el f awel elqueue, then ye2om
-         * w y-execute el job, then y-sleep le7ad el job elba3daha w hakaza
-         *
-         * el main thread hena hayb2a bey-accept el jobs el gededa w bey-add them
-         * lel queue beta3y
-         *
-         * fy case mohema w heya en yegely new job hat-get executed abl awel job
-         * kanet 3andy fel queue, sa3et-ha lazem a-notify el sleeping thread beta3
-         * el execution a2awemo, w a5aleh y-sleep bel time elgedeed beta3 el new
-         * added job (da flow elmafrood yeb2a dayman 3ala ay new added job).
-         *
-         * kol job hat-get executed f thread lewa7daha spawned men execution thread,
-         * w kol thread men dol mas2ool 3an recording el time of execution of the
-         * job, then it could delegate this info to a logger which should handle
-         * logging all info (execution time, output, etc..) of any job that ran
-         * in a file.
-         *
-         * 3ayez afakar bardo fel case beta3et en 2 jobs 5alaso execution ma3 ba3d
-         * w 3ayzeen ye3melo re-insert lel job dy bel frequency beta3et-ha fel
-         * queue of jobs to be executed.
-         *
-         * haykoon 3andy path lel logging directory, w haykoon kol job leha el
-         * file beta3ha w esmo feh el id beta3 el job.
-         */
-
         this.eventBus = new EventBus();
-        this.jobExecutorThread = new JobQueueManager(this.eventBus);
-        this.jobExecutorThread.start();
+
+        initializeLogger();
+
+        // start job queue manager thread
+        new JobQueueManager(this.eventBus).start();
     }
 
     /**
@@ -61,9 +40,44 @@ public final class JobScheduler {
      * be executed.
      */
     public void accept(CronJob cronJob) {
-//        cronJobQueue.add(cronJob);
-
-        System.out.println("Accepting new job with ID = " + cronJob.getId());
+        logger.log(Level.INFO, "Accepting new job with ID = " + cronJob.getId());
         eventBus.post(new JobAddedEvent(cronJob));
+    }
+
+    public static Logger getLogger() {
+        return logger;
+    }
+
+    private void initializeLogger() {
+        // setting logging level
+        logger.setLevel(Level.FINE);
+
+        // adding console handler
+        logger.addHandler(new ConsoleHandler());
+
+        // adding file handler
+        try {
+            Handler fileHandler = new FileHandler("scheduler.log");
+            fileHandler.setFormatter(new SchedulerLogFileFormatter());
+            logger.addHandler(fileHandler);
+        } catch (SecurityException | IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * A formatter to specify the format of the logs in the cron job scheduler log
+     * files.
+     */
+    private final class SchedulerLogFileFormatter extends Formatter {
+
+        @Override
+        public String format(LogRecord record) {
+            return record.getThreadID() + "::" + record.getSourceClassName()
+                + "::" + record.getSourceMethodName() + "::"
+                + new Date(record.getMillis()) + "::" + record.getMessage()
+                + "\n";
+        }
+
     }
 }

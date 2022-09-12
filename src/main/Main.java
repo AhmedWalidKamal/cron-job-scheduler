@@ -17,41 +17,6 @@ public class Main {
         JobScheduler scheduler = new JobScheduler();
         scheduler.accept(new Main.SampleJobA());
         Thread.sleep(5000);
-        addJobWithDelay(scheduler, new Main.SampleJobB(), 100);
-        addJobWithDelay(scheduler, new Main.SampleJobB(), 100);
-        addJobWithDelay(scheduler, new Main.SampleJobB(), 100);
-        addJobWithDelay(scheduler, new Main.SampleJobB(), 100);
-        addJobWithDelay(scheduler, new Main.SampleJobB(), 100);
-        addJobWithDelay(scheduler, new Main.SampleJobB(), 100);
-        addJobWithDelay(scheduler, new Main.SampleJobB(), 100);
-        addJobWithDelay(scheduler, new Main.SampleJobB(), 100);
-        addJobWithDelay(scheduler, new Main.SampleJobB(), 100);
-        addJobWithDelay(scheduler, new Main.SampleJobB(), 100);
-        addJobWithDelay(scheduler, new Main.SampleJobB(), 100);
-        addJobWithDelay(scheduler, new Main.SampleJobB(), 100);
-        addJobWithDelay(scheduler, new Main.SampleJobB(), 100);
-        addJobWithDelay(scheduler, new Main.SampleJobB(), 100);
-        addJobWithDelay(scheduler, new Main.SampleJobB(), 100);
-        addJobWithDelay(scheduler, new Main.SampleJobB(), 100);
-        addJobWithDelay(scheduler, new Main.SampleJobB(), 100);
-        addJobWithDelay(scheduler, new Main.SampleJobB(), 100);
-        addJobWithDelay(scheduler, new Main.SampleJobB(), 100);
-        addJobWithDelay(scheduler, new Main.SampleJobB(), 100);
-        addJobWithDelay(scheduler, new Main.SampleJobB(), 100);
-        addJobWithDelay(scheduler, new Main.SampleJobB(), 100);
-        addJobWithDelay(scheduler, new Main.SampleJobB(), 100);
-        addJobWithDelay(scheduler, new Main.SampleJobB(), 100);
-        addJobWithDelay(scheduler, new Main.SampleJobB(), 100);
-        addJobWithDelay(scheduler, new Main.SampleJobB(), 100);
-        addJobWithDelay(scheduler, new Main.SampleJobB(), 100);
-        addJobWithDelay(scheduler, new Main.SampleJobB(), 100);
-        addJobWithDelay(scheduler, new Main.SampleJobB(), 100);
-        addJobWithDelay(scheduler, new Main.SampleJobB(), 100);
-        addJobWithDelay(scheduler, new Main.SampleJobB(), 100);
-        addJobWithDelay(scheduler, new Main.SampleJobB(), 100);
-        addJobWithDelay(scheduler, new Main.SampleJobB(), 100);
-        addJobWithDelay(scheduler, new Main.SampleJobB(), 100);
-        addJobWithDelay(scheduler, new Main.SampleJobB(), 100);
 
     }
 

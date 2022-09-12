@@ -22,9 +22,7 @@ public final class JobExecutor {
 
     private final ExecutorService executorService;
 
-
     public JobExecutor(EventBus eventBus) {
-
         this.eventBus = eventBus;
         this.executorService = Executors.newFixedThreadPool(10);
     }
@@ -49,9 +47,12 @@ public final class JobExecutor {
             Future<?> future = executorService.submit(jobToExecute);
             while (!future.isDone()) {
                 try {
-                    long timeout = jobToExecute.getExpectedRunningIntervalIfAny() == null
+                    long timeout
+                        = jobToExecute.getExpectedRunningIntervalIfAny() == null
                         ? DEFAULT_JOB_EXECUTION_INTERVAL_TIMEOUT
                         : jobToExecute.getExpectedRunningIntervalIfAny();
+
+                    // block till job finishes execution, or times out
                     future.get(timeout, TimeUnit.MILLISECONDS);
                 } catch (InterruptedException e) {
                     e.printStackTrace();

@@ -4,6 +4,8 @@ import java.time.Instant;
 import java.util.Comparator;
 import java.util.Queue;
 import java.util.concurrent.PriorityBlockingQueue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
@@ -52,13 +54,15 @@ public final class JobQueueManager extends Thread {
             synchronized(cronJobQueue) {
                 while (cronJobQueue.isEmpty()) {
                     try {
-                        System.out.println("Waiting till a job is added");
+                        JobScheduler.getLogger().log
+                            (Level.INFO, "Waiting till a job is added");
                         cronJobQueue.wait();
                     }
                     catch (InterruptedException e) {
-                        System.out.println("Interrupted exception while "
-                                           + "waiting on queue: ");
-                        e.printStackTrace();
+                        JobScheduler.getLogger().log
+                            (Level.WARNING,
+                             "Interrupted exception while waiting on queue: "
+                             + e);
                     }
                 }
 
@@ -71,9 +75,10 @@ public final class JobQueueManager extends Thread {
                         cronJobQueue.wait
                             (timeToExecuteNextJob - Instant.now().toEpochMilli());
                     } catch (InterruptedException e) {
-                        System.out.println
-                            ("Interrupted exception while waiting on job time: ");
-                        e.printStackTrace();
+                        JobScheduler.getLogger().log
+                            (Level.WARNING,
+                             "Interrupted exception while waiting on job time: "
+                             + e);
                     }
 
                     timeToExecuteNextJob
@@ -104,8 +109,10 @@ public final class JobQueueManager extends Thread {
         @Subscribe
         public void cronJobAdded(JobAddedEvent jobAddedEvent) {
             CronJob newCronJob = jobAddedEvent.getCronJob();
-            System.out.println("Job with ID = " + newCronJob.getId()
-                               + " has been received to be added.");
+
+            JobScheduler.getLogger().log
+                (Level.INFO, "Job with ID = " + newCronJob.getId()
+                 + " has been received to be added.");
 
             synchronized(cronJobQueue) {
                 cronJobQueue.add(newCronJob);
@@ -119,8 +126,12 @@ public final class JobQueueManager extends Thread {
         @Subscribe
         public void cronJobExecuted(JobExecutedEvent jobExecutedEvent) {
             CronJob executedJob = jobExecutedEvent.getCronJob();
-            System.out.println("Job with ID = " + executedJob.getId()
-                               + " has finished execution.");
+            JobScheduler.getLogger().log
+                (Level.INFO, "Job with ID = " + executedJob.getId()
+                 + " has finished execution. It took approximately: "
+                 + (Instant.now().toEpochMilli() - executedJob.getLastExecutedTimestamp())
+                 + " Milliseconds to finish.");
+
             executedJob.updateLastExecutedTimestamp();
 
             synchronized (cronJobQueue) {
