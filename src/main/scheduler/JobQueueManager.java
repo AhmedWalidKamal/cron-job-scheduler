@@ -1,4 +1,4 @@
-package main.job;
+package main.scheduler;
 
 import java.time.Instant;
 import java.util.Comparator;
@@ -11,6 +11,7 @@ import com.google.common.eventbus.Subscribe;
 
 import main.event.JobAddedEvent;
 import main.event.JobExecutedEvent;
+import main.job.CronJobWrapper;
 
 /**
  * Manages the job queue by handling events to add jobs to the queue, execute
@@ -55,12 +56,12 @@ public final class JobQueueManager extends Thread {
             synchronized(cronJobQueue) {
                 while (cronJobQueue.isEmpty()) {
                     try {
-                        JobScheduler.getLogger().log
+                        JobSchedulerImpl.getLogger().log
                             (Level.INFO, "Waiting till a job is added");
                         cronJobQueue.wait();
                     }
                     catch (InterruptedException e) {
-                        JobScheduler.getLogger().log
+                        JobSchedulerImpl.getLogger().log
                             (Level.WARNING,
                              "Interrupted exception while waiting on queue: "
                              + e);
@@ -76,7 +77,7 @@ public final class JobQueueManager extends Thread {
                         cronJobQueue.wait
                             (timeToExecuteNextJob - Instant.now().toEpochMilli());
                     } catch (InterruptedException e) {
-                        JobScheduler.getLogger().log
+                        JobSchedulerImpl.getLogger().log
                             (Level.WARNING,
                              "Interrupted exception while waiting on job time: "
                              + e);
@@ -111,7 +112,7 @@ public final class JobQueueManager extends Thread {
         public void cronJobAdded(JobAddedEvent jobAddedEvent) {
             CronJobWrapper newCronJob = jobAddedEvent.getCronJobWrapper();
 
-            JobScheduler.getLogger().log
+            JobSchedulerImpl.getLogger().log
                 (Level.INFO, "Job with ID = " + newCronJob.getId()
                  + " has been received to be added.");
 
@@ -127,7 +128,7 @@ public final class JobQueueManager extends Thread {
         @Subscribe
         public void cronJobExecuted(JobExecutedEvent jobExecutedEvent) {
             CronJobWrapper executedJob = jobExecutedEvent.getCronJobWrapper();
-            JobScheduler.getLogger().log
+            JobSchedulerImpl.getLogger().log
                 (Level.INFO, "Job with ID = " + executedJob.getId()
                  + " has finished execution. It took approximately: "
                  + (Instant.now().toEpochMilli() - executedJob.getLastExecutedTimestamp())

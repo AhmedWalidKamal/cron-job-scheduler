@@ -1,4 +1,4 @@
-package main.job;
+package main.scheduler;
 
 import java.io.IOException;
 import java.util.Date;
@@ -13,19 +13,22 @@ import java.util.logging.Logger;
 import com.google.common.eventbus.EventBus;
 
 import main.event.JobAddedEvent;
+import main.job.CronJob;
+import main.job.CronJobWrapper;
 
 /**
- * Responsible for scheduling cron jobs periodically, accepts new jobs that
- * will be added to the job queue to be scheduled for execution.
+ * Default {@link JobScheduler} implementation. Responsible for scheduling
+ * {@link CronJob}s periodically, accepts new jobs that will be added to the
+ * queue to be scheduled for execution.
  */
-public final class JobScheduler {
+public final class JobSchedulerImpl implements JobScheduler {
 
     private final EventBus eventBus;
 
     private static final Logger logger
-        = Logger.getLogger(JobScheduler.class.getName());
+        = Logger.getLogger(JobSchedulerImpl.class.getName());
 
-    public JobScheduler() {
+    public JobSchedulerImpl() {
         this.eventBus = new EventBus();
 
         initializeLogger();
@@ -38,6 +41,7 @@ public final class JobScheduler {
      * Accepts a new {@link CronJob} instance, adds it to the queue of jobs to
      * be executed.
      */
+    @Override
     public void accept(CronJob cronJob) {
         CronJobWrapper cronJobWrapper = new CronJobWrapper(cronJob);
         logger.log(Level.INFO, "Accepting new job with ID = "

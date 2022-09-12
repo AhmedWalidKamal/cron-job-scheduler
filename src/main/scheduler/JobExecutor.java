@@ -1,4 +1,4 @@
-package main.job;
+package main.scheduler;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -10,6 +10,7 @@ import java.util.concurrent.TimeoutException;
 import com.google.common.eventbus.EventBus;
 
 import main.event.JobExecutedEvent;
+import main.job.CronJobWrapper;
 
 /**
  * Executes the jobs by managing a thread pool, and notifies the queue manager

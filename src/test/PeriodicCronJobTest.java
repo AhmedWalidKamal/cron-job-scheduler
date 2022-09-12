@@ -5,16 +5,16 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 import main.job.CronJob;
-import main.job.CronJobWrapper;
-import main.job.JobScheduler;
+import main.scheduler.JobScheduler;
+import main.scheduler.JobSchedulerFactory;
 
 public final class PeriodicCronJobTest {
 
     private int counter = 1;
 
     @Test
-    void testSinglePeriodicJob() {
-        JobScheduler scheduler = new JobScheduler();
+    void testSinglePeriodicJob() throws InterruptedException {
+        JobScheduler scheduler = JobSchedulerFactory.getJobScheduler();
         scheduler.accept(new CronJob() {
 
             @Override
@@ -33,13 +33,7 @@ public final class PeriodicCronJobTest {
             }
         });
 
-        // sleep for 10 seconds
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        System.out.println(counter);
+        Thread.sleep(10000);
         assertTrue(counter == 10);
     }
 }

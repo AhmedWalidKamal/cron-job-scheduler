@@ -1,7 +1,7 @@
 package main;
 
 import main.job.CronJobWrapper;
-import main.job.JobScheduler;
+import main.scheduler.JobSchedulerImpl;
 
 public class Main {
 
