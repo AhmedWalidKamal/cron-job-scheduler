@@ -11,7 +11,7 @@ import main.event.JobAddedEvent;
  */
 public final class JobScheduler {
 
-    private final JobExecutor jobExecutorThread;
+    private final JobQueueManager jobExecutorThread;
     private final EventBus eventBus;
 
     public JobScheduler() {
@@ -52,7 +52,7 @@ public final class JobScheduler {
          */
 
         this.eventBus = new EventBus();
-        this.jobExecutorThread = new JobExecutor(this.eventBus);
+        this.jobExecutorThread = new JobQueueManager(this.eventBus);
         this.jobExecutorThread.start();
     }
 

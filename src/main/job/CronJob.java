@@ -1,15 +1,16 @@
 package main.job;
 
 import java.time.Instant;
+import java.util.UUID;
 
 /**
  * Represents a job that gets scheduled to be executed perodically.
  */
 public abstract class CronJob implements Runnable {
 
-    private final boolean isSingleRun;
+    private final Long expectedRunningIntervalIfAny;
     private final long frequencyInMillis;
-    private final long id;
+    private final String id;
 
     /*
      * Indicates the timestamp of the last time this job was executed, if this
@@ -19,17 +20,19 @@ public abstract class CronJob implements Runnable {
     private long lastExecutedTimestamp;
 
     public CronJob(long frequencyInMillis) {
-        this(frequencyInMillis, false/*isSingleRun*/);
+        this(null/*expectedRunningIntervalIfAny*/, frequencyInMillis);
     }
 
-    public CronJob(long frequencyInMillis, boolean isSingleRun) {
-        // TODO: need to use a unique ID generator here
-        this(frequencyInMillis, isSingleRun, 1);
+    public CronJob(Long expectedRunningIntervalIfAny, long frequencyInMillis) {
+        this(expectedRunningIntervalIfAny, frequencyInMillis,
+             UUID.randomUUID().toString());
     }
 
-    public CronJob(long frequencyInMillis, boolean isSingleRun, long id) {
+    private CronJob(Long expectedRunningIntervalIfAny, long frequencyInMillis,
+                    String id) {
+
+        this.expectedRunningIntervalIfAny = expectedRunningIntervalIfAny;
         this.frequencyInMillis = frequencyInMillis;
-        this.isSingleRun = isSingleRun;
         this.id = id;
 
         this.lastExecutedTimestamp = Instant.now().toEpochMilli();
@@ -37,15 +40,15 @@ public abstract class CronJob implements Runnable {
 
     public abstract void run();
 
-    public boolean getIsSingleRun() {
-        return isSingleRun;
+    public Long getExpectedRunningIntervalIfAny() {
+        return expectedRunningIntervalIfAny;
     }
 
     public long getFrequencyInMillis() {
         return frequencyInMillis;
     }
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 
