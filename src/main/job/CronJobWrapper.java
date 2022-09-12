@@ -16,7 +16,7 @@ public final class CronJobWrapper {
     /*
      * Indicates the timestamp of the last time this job was executed, if this
      * job hasn't been executed yet, then it has the value of the time of its
-     * creation.
+     * creation - the frequency of its repetition (to be executed right away).
      */
     private long lastExecutedTimestamp;
 
@@ -25,7 +25,8 @@ public final class CronJobWrapper {
         this.cronJob = cronJob;
         this.id = UUID.randomUUID().toString();
 
-        this.lastExecutedTimestamp = Instant.now().toEpochMilli();
+        this.lastExecutedTimestamp
+            = Instant.now().toEpochMilli() - cronJob.getFrequencyInMillis();
     }
 
     public CronJob getCronJob() {

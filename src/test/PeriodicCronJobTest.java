@@ -10,7 +10,7 @@ import main.scheduler.JobSchedulerFactory;
 
 public final class PeriodicCronJobTest {
 
-    private int counter = 1;
+    private int counter = 0;
 
     @Test
     void testSinglePeriodicJob() throws InterruptedException {
