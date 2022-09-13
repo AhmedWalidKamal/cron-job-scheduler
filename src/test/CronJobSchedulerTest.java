@@ -48,6 +48,19 @@ public final class CronJobSchedulerTest {
     }
 
     /**
+     * Tests that the queue of jobs executes the jobs that are nearest in time
+     * first.
+     */
+    @Test
+    void testJobsOrder() throws InterruptedException {
+        scheduler.accept(getDecrementCounterJob(60000L, 10L));
+        scheduler.accept(getIncrementCounterJob(10000L, 10L));
+
+        Thread.sleep(15000);
+        assertTrue(counter == 1);
+    }
+
+    /**
      * Tests adding jobs while the queue has a lot of jobs in it.
      */
     @Test

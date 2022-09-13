@@ -2,8 +2,8 @@ package main.scheduler;
 
 import java.time.Instant;
 import java.util.Comparator;
+import java.util.PriorityQueue;
 import java.util.Queue;
-import java.util.concurrent.PriorityBlockingQueue;
 import java.util.logging.Level;
 
 import com.google.common.eventbus.EventBus;
@@ -32,8 +32,8 @@ public final class JobQueueManager extends Thread {
         this.eventBus = eventBus;
         registerEvents();
 
-        this.cronJobQueue = new PriorityBlockingQueue<CronJobWrapper>
-            (11, new Comparator<CronJobWrapper>() {
+        this.cronJobQueue = new PriorityQueue<>(
+            new Comparator<CronJobWrapper>() {
                 @Override
                 public int compare
                     (CronJobWrapper firstJob, CronJobWrapper secondJob) {
