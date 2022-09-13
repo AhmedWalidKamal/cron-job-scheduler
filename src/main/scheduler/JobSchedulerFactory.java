@@ -6,7 +6,7 @@ package main.scheduler;
  * {@link JobScheduler} interface) and returned by this factory class to the
  * client.
  */
-public class JobSchedulerFactory {
+public final class JobSchedulerFactory {
 
     /**
      * Returns the default {@link JobScheduler} implementation.
