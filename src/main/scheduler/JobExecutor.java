@@ -18,14 +18,19 @@ import main.job.CronJobWrapper;
  */
 public final class JobExecutor {
 
-    private static final long DEFAULT_JOB_EXECUTION_INTERVAL_TIMEOUT = 10000;
+    // default job execution time is around 10 mins
+    private static final long DEFAULT_JOB_EXECUTION_INTERVAL_TIMEOUT
+        = 10 * 60 * 1000;
     private final EventBus eventBus;
 
     private final ExecutorService executorService;
 
     public JobExecutor(EventBus eventBus) {
+        if (eventBus == null)
+            throw new IllegalArgumentException();
+
         this.eventBus = eventBus;
-        this.executorService = Executors.newFixedThreadPool(10);
+        this.executorService = Executors.newFixedThreadPool(20);
     }
 
     /**

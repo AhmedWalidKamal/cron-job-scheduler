@@ -21,6 +21,8 @@ public final class CronJobWrapper {
     private long lastExecutedTimestamp;
 
     public CronJobWrapper(CronJob cronJob) {
+        if (cronJob == null)
+            throw new IllegalArgumentException();
 
         this.cronJob = cronJob;
         this.id = UUID.randomUUID().toString();
@@ -37,7 +39,7 @@ public final class CronJobWrapper {
         return cronJob.getExpectedRunningIntervalIfAny();
     }
 
-    public long getFrequencyInMillis() {
+    public Long getFrequencyInMillis() {
         return cronJob.getFrequencyInMillis();
     }
 

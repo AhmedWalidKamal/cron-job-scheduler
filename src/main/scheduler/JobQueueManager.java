@@ -26,6 +26,9 @@ public final class JobQueueManager extends Thread {
     private final JobExecutor jobExecutor;
 
     public JobQueueManager(EventBus eventBus) {
+        if (eventBus == null)
+            throw new IllegalArgumentException();
+
         this.eventBus = eventBus;
         registerEvents();
 
