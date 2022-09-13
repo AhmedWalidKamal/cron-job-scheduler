@@ -6,6 +6,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
 
 import com.google.common.eventbus.EventBus;
 
@@ -21,8 +22,18 @@ public final class JobExecutor {
     // default job execution time is around 10 mins
     private static final long DEFAULT_JOB_EXECUTION_INTERVAL_TIMEOUT
         = 10 * 60 * 1000;
-    private final EventBus eventBus;
 
+    // add 10 seconds allowance before the job executing times-out.
+    private static final long JOB_EXECUTION_TIMEOUT_ALLOWANCE_IN_MS
+        = 60 * 1000;
+
+    // a limit on the number of threads to be spawned at the same time for
+    // jobs to be executed, after this limit is reached, jobs will have to wait
+    // until a running job is finished and a thread from the thread-pool is
+    // available for it to execute
+    private static final int MAX_NUMBER_OF_CONCURRENT_JOBS = 2000;
+
+    private final EventBus eventBus;
     private final ExecutorService executorService;
 
     public JobExecutor(EventBus eventBus) {
@@ -30,7 +41,8 @@ public final class JobExecutor {
             throw new IllegalArgumentException();
 
         this.eventBus = eventBus;
-        this.executorService = Executors.newFixedThreadPool(20);
+        this.executorService
+            = Executors.newFixedThreadPool(MAX_NUMBER_OF_CONCURRENT_JOBS);
     }
 
     /**
@@ -59,13 +71,23 @@ public final class JobExecutor {
                         : jobToExecute.getExpectedRunningIntervalIfAny();
 
                     // block till job finishes execution, or times out
-                    future.get(timeout, TimeUnit.MILLISECONDS);
+                    future.get(timeout + JOB_EXECUTION_TIMEOUT_ALLOWANCE_IN_MS,
+                               TimeUnit.MILLISECONDS);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    JobSchedulerImpl.getLogger().log
+                        (Level.SEVERE,
+                         "Job with ID = " + jobToExecute.getId()
+                         + " is interrupted.", e);
                 } catch (ExecutionException e) {
-                    e.printStackTrace();
+                    JobSchedulerImpl.getLogger().log
+                        (Level.SEVERE,
+                         "Job with ID = " + jobToExecute.getId()
+                         + " failed to execute.", e);
                 } catch (TimeoutException e) {
-                    e.printStackTrace();
+                    JobSchedulerImpl.getLogger().log
+                        (Level.SEVERE,
+                         "Job with ID = " + jobToExecute.getId()
+                         + " has timed-out.", e);
                 }
             }
 

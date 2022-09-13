@@ -1,5 +1,6 @@
 package main;
 
+import main.job.CronJob;
 import main.job.CronJobWrapper;
 import main.scheduler.JobSchedulerImpl;
 
@@ -15,7 +16,25 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
 //        JobScheduler scheduler = new JobScheduler();
-//        scheduler.accept(new Main.SampleJobA());
+//        scheduler.accept(new CronJob() {
+//
+//            @Override
+//            public void run() {
+//                // job function implementation
+//            }
+//
+//            @Override
+//            public Long getFrequencyInMillis() {
+//                // return the job's periodic frequency
+//                return 1000L;
+//            }
+//
+//            @Override
+//            public Long getExpectedRunningIntervalIfAny() {
+//                // return the job's expected running interval
+//                return 1000L;
+//            }
+//        });
 //        Thread.sleep(5000);
 
     }

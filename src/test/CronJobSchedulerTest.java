@@ -21,6 +21,10 @@ public final class CronJobSchedulerTest {
         counter = 0;
     }
 
+    /**
+     * Adds a single periodic job that runs every second and increments the
+     * counter, asserts that after 10 seconds, this job would have run 10 times.
+     */
     @Test
     void testSinglePeriodicJob() throws InterruptedException {
         scheduler.accept(getIncrementCounterJob(1000L, null));
@@ -29,36 +33,41 @@ public final class CronJobSchedulerTest {
         assertTrue(counter == 10);
     }
 
+    /**
+     * Adds 2 jobs that run in parallel, one increments the counter and the
+     * other decrements it, both runs each second, asserts that the counter is
+     * zero after some period of time.
+     */
     @Test
     void testConcurrentJobs() throws InterruptedException {
         scheduler.accept(getIncrementCounterJob(1000L, null));
         scheduler.accept(getDecrementCounterJob(1000L, null));
 
-        Thread.sleep(10000);
+        Thread.sleep(13000);
         assertTrue(counter == 0);
     }
 
+    /**
+     * Tests adding jobs while the queue has a lot of jobs in it.
+     */
     @Test
-    void testAddingJobsWhileOthersAreRunning() throws InterruptedException {
+    void testBusySchedule() throws InterruptedException {
 
-        // rarely running
+        // this job mostly stays in the queue
         scheduler.accept(createEmptyCronJob(10000L, 1L));
 
-        // always running
+        // this task is frequently running
         scheduler.accept(createEmptyCronJob(100L, 10000L));
+
+        // add a bunch of tasks
+        for (int i = 0; i < 1000; i++)
+            scheduler.accept(createEmptyCronJob(10000L, 10000L));
 
         // add a job that increments the counter
         scheduler.accept(getIncrementCounterJob(1000L, null));
 
         // sleep for 5 seconds
         Thread.sleep(5000);
-
-        // add a bunch of tasks
-        scheduler.accept(createEmptyCronJob(10000L, 10000L));
-        scheduler.accept(createEmptyCronJob(10000L, 10000L));
-        scheduler.accept(createEmptyCronJob(10000L, 10000L));
-        scheduler.accept(createEmptyCronJob(10000L, 10000L));
-        scheduler.accept(createEmptyCronJob(10000L, 10000L));
 
         // add a job that decrements the counter
         scheduler.accept(getDecrementCounterJob(1000L, null));
